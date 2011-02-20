@@ -1,0 +1,18 @@
+<% form_for(buf, route, {action: '/routes/'}, function (form) { %>
+  <p>
+    <%- form.label('uuid') %><br/>
+    <%- form.input('uuid') %>
+  </p>
+
+  <p>
+    <%- form.label('name') %><br/>
+    <%- form.input('name') %>
+  </p>
+
+  <p>
+    <%- form.label('target') %><br/>
+    <%- form.input('target') %>
+  </p>
+
+  <%- form.submit('Create route') %>
+<% });%>

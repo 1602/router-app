@@ -1,0 +1,9 @@
+<table>
+  <% routes.forEach(function (route) { console.log(route.toJSON()); %>
+    <tr>
+      <td><%= route.uuid || route.id %></td>
+      <td><%= route.name %></td>
+      <td><%= route.target %></td>
+    </tr>
+  <% });%>
+</table>

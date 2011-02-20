@@ -3,6 +3,7 @@ var User = describe("User", function () {
     property("password",       String);
     property("activationCode", String);
     property("activated",      Boolean);
+    property("routesCount",    Number);
 });
 
 function getRandomHash () {
@@ -93,4 +94,64 @@ User.authenticate = function (email, password, callback) {
             }
         }
     });
+};
+
+User.prototype.createRoute = function (params, callback) {
+    var user = this, requireCallbacks = 3;
+
+    params.user_id = user.id;
+
+    Route.create(params, function () {
+        user.connection.set('route_by_user:' + user.id + ':' + this.id, this.id, next);
+        user.connection.set('route_by_uuid:' + this.uuid, this.id, next);
+        user.incrementRoutes(next);
+    });
+
+    function next () {
+        if (--requireCallbacks === 0) {
+            callback();
+        }
+    }
+};
+
+User.prototype.getRoute = function (id, callback) {
+    this.connection.get('route_by_user:' + this.id + ':' + id, function (err, data) {
+        if (!err && data.toString() == id) {
+            Route.find(id, callback);
+        }
+    });
+};
+
+User.prototype.getRoutes = function (callback) {
+    this.connection.keys('route_by_user:' + this.id + ':*', function (err, ids) {
+        var result = [], routesCount = ids.length;
+
+        if (routesCount === 0) {
+            done();
+        }
+
+        ids.forEach(function (key) {
+            var id = parseInt(key.toString().split(':')[2], 10);
+            Route.find(id, collect);
+        });
+
+        function collect (err, route) {
+            result.push(route);
+            if (--routesCount === 0) {
+                done();
+            }
+        }
+
+        function done () {
+            callback(result);
+        }
+    });
+};
+
+User.prototype.incrementRoutes = function (callback) {
+    if (this.routesCount) {
+        this.updateAttribute('routesCount', this.routesCount + 1, callback);
+    } else {
+        this.updateAttribute('routesCount', 1, callback);
+    }
 };

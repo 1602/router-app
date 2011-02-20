@@ -30,13 +30,13 @@ namespace :deploy do
 
   desc "Symlink config files"
   task :symlink_configs, :roles => :app do
-    %w[app_config.yml database.json].each do |f|
-      run "ln -sf #{shared_path}/config/#{f} #{release_path}/config/#{f}"
-    end
+    # %w[app_config.yml database.json].each do |f|
+      # run "ln -sf #{shared_path}/config/#{f} #{release_path}/config/#{f}"
+    # end
   end
 
   desc "Check required packages and install if packages are not installed"
-  task :check_packages, roles => :app do
+  task :check_packages, :roles => :app do
     run "cd #{release_path} && jake depends"
   end
 
