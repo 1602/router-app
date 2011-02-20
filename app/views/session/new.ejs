@@ -1,0 +1,18 @@
+<% if (message) { %>
+  <p class="flash">
+    <%- message %>
+  </p>
+<% } %>
+
+<% form_for(buf, session, {action: '/session/', method: 'POST'}, function (form) { %>
+  <p>
+    <%- form.label('email') %><br/>
+    <%- form.input('email') %>
+  </p>
+  <p>
+    <%- form.label('password') %><br/>
+    <%- form.input('password', {type: 'password'}) %>
+  </p>
+  <%- form.submit() %>
+<% }) %>
+

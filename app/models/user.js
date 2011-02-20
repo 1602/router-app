@@ -1,0 +1,96 @@
+var User = describe("User", function () {
+    property("email",          String);
+    property("password",       String);
+    property("activationCode", String);
+    property("activated",      Boolean);
+});
+
+function getRandomHash () {
+    return require('crypto').createHash('md5').update(require('node-uuid')()).digest('hex');
+}
+
+User.createActivationCode = function () {
+    return getRandomHash();
+};
+
+User.prototype.prepareActivation = function () {
+    this.connection.set('activation:' + this.activationCode, this.id);
+};
+
+User.activate = function (code, callback) {
+    User.connection.get('activation:' + code, function (err, data) {
+        var user_id = data.toString();
+        User.find(user_id, function () {
+            this.updateAttribute('activated', true, function () {
+                callback.call(this, err);
+            }.bind(this));
+            // Email index
+            User.connection.set('user_by_email:' + this.email, this.id);
+        });
+    });
+};
+
+User.generatePassword = function (len) {
+    len = len || 8;
+    return getRandomHash().slice(0, len);
+};
+
+User.encryptPassword = function (password) {
+    return require('crypto').createHash('md5').update(password).digest('hex');
+};
+
+User.find_by_email = function (email, callback) {
+    User.connection.get('user_by_email:' + email, function (err, data) {
+        if (!err && data) {
+            User.find(data.toString(), callback);
+        } else {
+            callback.call(null, true);
+        }
+    });
+};
+
+User.register = function (email, callback) {
+    var password = User.generatePassword();
+    User.create({
+        email: email,
+        activationCode: User.createActivationCode(),
+        activated: false,
+        password: User.encryptPassword(password)
+    }, function (id) {
+        this.prepareActivation();
+        require('mailer').send({
+            host: "localhost",              // smtp server hostname
+            port: "25",                     // smtp server port
+            ssl: true,                      // for SSL support - REQUIRES NODE v0.3.x OR HIGHER
+            domain: "webdesk.homelinux.org",            // domain used by client to identify itself to server
+            to: this.email,
+            from: "noreply@webdesk.homelinux.org",
+            subject: "Activate your account",
+            body: "Hi!\n To activate you account follow link: http://router.node-js.ru/users/" + this.activationCode + "/activate\n\nYour temporary password is: " + password,
+            authentication: "no auth",        // auth login is supported; anything else is no auth
+            username: new Buffer('user').toString('base64'),       // Base64 encoded username
+            password: new Buffer('53cr3t').toString('base64')        // Base64 encoded password
+        }, function () {
+            // console.log(arguments);
+        });
+        callback.call(this);
+    });
+};
+
+User.prototype.changePassword = function (password) {
+    this.updateAttribute('password', User.encryptPassword(password));
+};
+
+User.authenticate = function (email, password, callback) {
+    User.find_by_email(email, function (err, user) {
+        if (err) {
+            callback(false, 'user not found');
+        } else {
+            if (user.password === User.encryptPassword(password)) {
+                callback(true, user);
+            } else {
+                callback(false, 'wrong password');
+            }
+        }
+    });
+};

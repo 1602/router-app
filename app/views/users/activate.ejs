@@ -1,0 +1,10 @@
+<% if (user) { %>
+    You account has been successfully activated, please change your password
+    <% form_for(buf, user, {action: user_change_password(user)}, function (form) { %>
+      <%- form.label('password') %><br/>
+      <%- form.input('password', {type: 'password', value: ''}) %><br/>
+      <%- form.submit('Change password') %>
+    <% }); %>
+<% } else { %>
+    Can not activate user
+<% } %>
