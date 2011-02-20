@@ -2,7 +2,7 @@ module.exports = {
     'new': function (req, next) {
         next('render', {
             title: 'New user registration',
-            recaptchaKey: '6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp'
+            recaptchaKey: config.recaptcha.publicKey //'6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp'
         });
     },
     'create': function (req, next) {
@@ -17,7 +17,7 @@ module.exports = {
         require('../../lib/recaptcha.js').verifyCaptcha({
             challenge:  req.body.recaptcha_challenge_field,
             response:   req.body.recaptcha_response_field,
-            privatekey: '6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5',
+            privatekey: config.recaptcha.privateKey, //'6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5',
             remoteip:   '127.0.0.1'
         }, function (success, error) {
             if (!success) {

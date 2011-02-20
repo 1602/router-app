@@ -1,0 +1,10 @@
+production:
+  recaptcha:
+    domain: "router.node-js.ru"
+    publicKey: "6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp"
+    privateKey: "6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5"
+development:
+  recaptcha:
+    domain: "router.node-js.ru"
+    publicKey: "6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp"
+    privateKey: "6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5"
