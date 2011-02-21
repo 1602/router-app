@@ -1,4 +1,7 @@
 { "development":
    { "driver": "redis"
    }
+, "production":
+   { "driver": "redis"
+   }
 }
