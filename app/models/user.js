@@ -133,7 +133,8 @@ User.prototype.getRoute = function (id, callback) {
 
 User.prototype.getRoutes = function (callback) {
     this.connection.keys('route_by_user:' + this.id + ':*', function (err, ids) {
-        var result = [], routesCount = ids ? ids.length : 0;
+        ids = ids || [];
+        var result = [], routesCount = ids.length;
 
         if (routesCount === 0) {
             done();
