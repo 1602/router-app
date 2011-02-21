@@ -14,7 +14,11 @@ User.createActivationCode = function () {
     return getRandomHash();
 };
 
-User.prototype.prepareActivation = function () {
+User.prototype.prepareActivation = function (activationCode) {
+    if (activationCode) {
+        this.updateAttribute('activationCode', activationCode);
+        this.updateAttribute('activated', false);
+    }
     this.connection.set('activation:' + this.activationCode, this.id);
 };
 
@@ -78,8 +82,13 @@ User.register = function (email, callback) {
     });
 };
 
-User.prototype.changePassword = function (password) {
-    this.updateAttribute('password', User.encryptPassword(password));
+User.prototype.changePassword = function (old_password, password) {
+    if (User.encryptPassword(old_password) == this.password) {
+        this.updateAttribute('password', User.encryptPassword(password));
+        return true;
+    } else {
+        return false;
+    }
 };
 
 User.authenticate = function (email, password, callback) {
@@ -154,4 +163,33 @@ User.prototype.incrementRoutes = function (callback) {
     } else {
         this.updateAttribute('routesCount', 1, callback);
     }
+};
+
+User.prototype.changeEmail = function (email, callback) {
+    var user = this;
+    // remove old index
+    User.connection.del('user_by_email:' + user.email);
+    // add new index
+    User.connection.set('user_by_email:' + email, user.id);
+    // update property
+    this.updateAttribute('email', email, function () {
+        var activationCode = User.createActivationCode();
+        // re-activation required
+        user.prepareActivation(activationCode);
+        require('mailer').send({
+            host: "localhost",              // smtp server hostname
+            port: "25",                     // smtp server port
+            ssl: true,                      // for SSL support - REQUIRES NODE v0.3.x OR HIGHER
+            domain: "node-js.ru",            // domain used by client to identify itself to server
+            to: this.email,
+            from: "noreply@node-js.ru",
+            subject: "Activate your account",
+            body: "Hi!\n To confirm email after email changing please follow link: http://router.node-js.ru/users/" + activationCode + "/activate?nopasschange=true",
+            authentication: "no auth",        // auth login is supported; anything else is no auth
+            username: new Buffer('user').toString('base64'),       // Base64 encoded username
+            password: new Buffer('53cr3t').toString('base64')        // Base64 encoded password
+        }, function () {
+            console.log(arguments);
+        });
+    });
 };

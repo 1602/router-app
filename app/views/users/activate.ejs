@@ -1,10 +1,13 @@
 <% if (user) { %>
-    You account has been successfully activated, please change your password
-    <% form_for(buf, user, {action: user_change_password(user)}, function (form) { %>
-      <%- form.label('password') %><br/>
-      <%- form.input('password', {type: 'password', value: ''}) %><br/>
-      <%- form.submit('Change password') %>
-    <% }); %>
+  <% if (changePasswordRequired) { %>
+    Your account has been successfully activated. Strongly recommended to 
+    change your password now. But you can do this later any time.
+
+    <%- partial('users/change_password.ejs', {locals: {user: user}}) %>
+
+  <% } else { %>
+    Your email has been confirmed. <a href="/routes">Continue</a>.
+  <% } %>
 <% } else { %>
     Can not activate user
 <% } %>

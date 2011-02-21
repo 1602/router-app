@@ -7,9 +7,10 @@ function userRequired (req, res, next) {
 }
 
 exports.routes = function (map) {
-    map.resources('users', {only: ['new', 'create']}, function (user) {
+    map.resources('users', {only: ['new', 'create', 'edit']}, function (user) {
         user.get('activate', 'users#activate');
-        user.put('change_password', 'users#changePassword');
+        user.put('change_password', 'users#changePassword', userRequired);
+        user.post('change_email', 'users#changeEmail', userRequired);
     });
 
     map.resources('session', {only: ['new', 'create']}, function (session) {

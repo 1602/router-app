@@ -45,16 +45,35 @@ module.exports = {
             req.session.user_id = this.id;
             next('render', {
                 title: 'User activation',
-                user: err ? null : this
+                user: err ? null : this,
+                changePasswordRequired: !req.query.nopasschange
             });
         });
     },
     'changePassword': function (req, next) {
-        if (req.user) {
-            req.user.changePassword(req.body.password);
+        if (req.user.changePassword(req.body.current_password, req.body.password)) {
             next('send', 'password changed');
         } else {
             next('send', 'password not changed');
+        }
+    },
+    'edit': function (req, next) {
+        if (req.user) {
+            next('render', {
+                user: req.user,
+                title: 'Edit account details'
+            });
+        } else {
+            req.flash('Authorization required');
+            next('redirect', '/session/new');
+        }
+    },
+    'changeEmail': function (req, next) {
+        if (req.user.email !== req.body.email) {
+            req.user.changeEmail(req.body.email);
+            next('send', 'confirmation required');
+        } else {
+            next('send', 'email the same');
         }
     }
 };

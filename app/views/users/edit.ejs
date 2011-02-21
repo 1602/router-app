@@ -1,0 +1,14 @@
+<h1>Change email</h1>
+
+<form action="/users/current/change_email" method="POST">
+  <p>
+    <label for="email">Email</label><br />
+    <input type="text" name="email" id="email" />
+  </p>
+
+  <input type="submit" value="Change email" />
+</form>
+
+<h1>Change password</h1>
+
+<%- partial('users/change_password.ejs', {locals: {user: user}}) %>
