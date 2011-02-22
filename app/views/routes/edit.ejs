@@ -1,0 +1,8 @@
+<h1>Edit route</h1>
+
+<% form_for(buf, route, {action: path_to.route(route)}, function (form) { %>
+
+  <%- partial('routes/form.ejs', {locals: {form: form, route: route}}) %>
+
+  <%- form.submit('Update route') %>
+<% });%>

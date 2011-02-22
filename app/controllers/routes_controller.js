@@ -16,8 +16,12 @@ module.exports = {
         if (req.body.uuid == req.session.pendingUUID) {
             delete req.session.pendingUUID;
         }
-        req.user.createRoute(req.body, function () {
-            next('redirect', '/routes');
+        req.user.createRoute(req.body, function (errors) {
+            if (errors) {
+                next('render', 'new', {route: this});
+            } else {
+                next('redirect', '/routes');
+            }
         });
     },
     'index': function (req, next) {
@@ -55,10 +59,22 @@ module.exports = {
         });
     },
     'edit': function (req, next) {
-        req.user.getRoute(req.params.id, function (route) {
+        req.user.getRoute(req.params.id, function (err, route) {
             next('render', {
                 route: route,
                 title: 'Edit route details'
+            });
+        });
+    },
+    'update': function (req, next) {
+        req.user.getRoute(req.params.id, function (err, route) {
+            route.update(req.body, function (err) {
+                if (!err) {
+                    req.flash('Route updated');
+                    next('redirect', path_to.routes);
+                } else {
+                    next('render', 'edit', {route: route, title: 'Edit route details'});
+                }
             });
         });
     }

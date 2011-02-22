@@ -1,0 +1,23 @@
+<% if (route.errors && route.errors.length) { %>
+  Errors:<br/>
+  <ul>
+    <% route.errors.forEach(function (error)  { %>
+    <li><%= error.join(':') %></li>
+    <% }); %>
+  </ul>
+<% }%>
+
+<p>
+  <%- form.label('uuid', 'UUID') %><br/>
+  <%- form.input('uuid', {size: 40}) %>
+</p>
+
+<p>
+  <%- form.label('name') %><br/>
+  <%- form.input('name') %>
+</p>
+
+<p>
+  <%- form.label('target') %><br/>
+  <%- form.input('target', {size: 40}) %>
+</p>

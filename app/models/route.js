@@ -29,3 +29,33 @@ Route.prototype.redirect = function (queryString) {
     var joiner = this.target.indexOf('?') === -1 ? '?' : '&';
     return this.target + (queryString ? joiner + queryString : '');
 };
+
+Route.prototype.validate = function () {
+    this.errors = [];
+
+    if (!Route.matchUUID(this.uuid)) {
+        this.errors.push(['uuid', 'Incorrect format']);
+    }
+
+    if (!this.target) {
+        this.errors.push(['target', 'Should not be blank']);
+    }
+
+    return this.errors.length === 0;
+};
+
+Route.prototype.update = function (data, callback) {
+    Object.keys(data).forEach(function (key) {
+        if (this.hasOwnProperty('_' + key)) {
+            this[key] = data[key];
+        }
+    }.bind(this));
+
+    if (this.validate()) {
+        this.save(function (err) {
+            callback.call(this, err);
+        }.bind(this));
+    } else {
+        callback.call(this, this.errors);
+    }
+};

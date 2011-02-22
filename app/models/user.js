@@ -110,7 +110,14 @@ User.prototype.createRoute = function (params, callback) {
 
     params.user_id = user.id;
 
-    Route.create(params, function () {
+    var route = new Route(params);
+
+    if (!route.validate()) {
+        callback.call(route, route.errors);
+        return;
+    }
+
+    route.save(function () {
         user.connection.set('route_by_user:' + user.id + ':' + this.id, this.id, next);
         user.connection.set('route_by_uuid:' + this.uuid, this.id, next);
         user.incrementRoutes(next);
@@ -118,7 +125,7 @@ User.prototype.createRoute = function (params, callback) {
 
     function next () {
         if (--requireCallbacks === 0) {
-            callback();
+            callback.call(route, null);
         }
     }
 };
