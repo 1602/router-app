@@ -1,6 +1,6 @@
 function userRequired (req, res, next) {
     if (!req.user) {
-        res.redirect('/session/new');
+        res.redirect('/sessions/new');
     } else {
         next();
     }
