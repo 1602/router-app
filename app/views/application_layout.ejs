@@ -6,6 +6,14 @@
     <%- javascript_include_tag('https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js', 'rails', 'application') %>
   </head>
   <body>
+    <% if (request.user) { %>
+      Logged as <%- link_to(request.user.email, edit_user(request.user)) %>
+      <%- link_to('Logout', session, {method: 'DELETE', remote: true, jsonp: '(function(url){location.href=url})'}) %>
+    <% } else { %>
+      <%- link_to('Login', new_session) %>
+      |
+      <%- link_to('Register', new_user) %>
+    <% } %>
     <%- body %>
   </body>
 </html>

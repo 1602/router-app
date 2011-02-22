@@ -125,8 +125,10 @@ User.prototype.createRoute = function (params, callback) {
 
 User.prototype.getRoute = function (id, callback) {
     this.connection.get('route_by_user:' + this.id + ':' + id, function (err, data) {
-        if (!err && data.toString() == id) {
+        if (!err && data && data.toString() == id) {
             Route.find(id, callback);
+        } else {
+            callback(err, null);
         }
     });
 };

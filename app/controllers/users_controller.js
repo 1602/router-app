@@ -65,7 +65,7 @@ module.exports = {
             });
         } else {
             req.flash('Authorization required');
-            next('redirect', '/session/new');
+            next('redirect', path_to.new_session);
         }
     },
     'changeEmail': function (req, next) {

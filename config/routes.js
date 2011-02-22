@@ -13,10 +13,8 @@ exports.routes = function (map) {
         user.post('change_email', 'users#changeEmail', userRequired);
     });
 
-    map.resources('session', {only: ['new', 'create']}, function (session) {
-        session.get('destroy', 'session#destroy');
-    });
+    map.resources('sessions', {only: ['new', 'create', 'destroy']});
 
     map.get('/', 'routes#index', userRequired);
-    map.resources('routes', {middleware: userRequired});
+    map.resources('routes', {middleware: userRequired, middlewareExcept: ['show']});
 };

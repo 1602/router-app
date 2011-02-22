@@ -18,3 +18,14 @@ Route.findByUUID = function (uuid, callback) {
         }
     });
 };
+
+Route.checkUUIDRegExp = /^[A-Z\d]{8}(-[A-Z\d]{4}){3}-[A-Z\d]{12}$/;
+
+Route.matchUUID = function (uuid) {
+    return uuid.match(Route.checkUUIDRegExp);
+};
+
+Route.prototype.redirect = function (queryString) {
+    var joiner = this.target.indexOf('?') === -1 ? '?' : '&';
+    return this.target + (queryString ? joiner + queryString : '');
+};

@@ -6,7 +6,7 @@
 
 <h1>Sign in</h1>
 
-<% form_for(buf, session, {action: '/session/', method: 'POST'}, function (form) { %>
+<% form_for(buf, session, {action: sessions, method: 'POST'}, function (form) { %>
   <p>
     <%- form.label('email', 'Email') %><br/>
     <%- form.input('email') %>
