@@ -4,15 +4,17 @@
   </p>
 <% } %>
 
+<h1>Sign in</h1>
+
 <% form_for(buf, session, {action: '/session/', method: 'POST'}, function (form) { %>
   <p>
-    <%- form.label('email') %><br/>
+    <%- form.label('email', 'Email') %><br/>
     <%- form.input('email') %>
   </p>
   <p>
-    <%- form.label('password') %><br/>
+    <%- form.label('password', 'Password') %><br/>
     <%- form.input('password', {type: 'password'}) %>
   </p>
-  <%- form.submit() %>
+  <%- form.submit('Sign me in') %>
 <% }) %>
 

@@ -1,4 +1,14 @@
 body {
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+body, table, input {
+  font-family: DejaVu Sans Mono, fixed;
+  font-size: 14pt;
+  line-height: 150%;
+  color: #444;
+}
+
+h1 {
+  line-height: 3em;
+  font-size: 1.3em;
 }

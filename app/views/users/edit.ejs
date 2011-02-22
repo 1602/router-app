@@ -1,14 +1,19 @@
-<h1>Change email</h1>
 
-<form action="/users/current/change_email" method="POST">
-  <p>
-    <label for="email">Email</label><br />
-    <input type="text" name="email" id="email" />
-  </p>
+<div style="width: 300px; height: 400px; float: left; margin-right: 50px; padding: 10px;">
+  <h1>Change email</h1>
+  <form action="/users/current/change_email" method="POST">
+    <p>
+      <label for="email">Email</label><br />
+      <input type="text" name="email" id="email" />
+    </p>
 
-  <input type="submit" value="Change email" />
-</form>
+    <input type="submit" value="Change email" />
+  </form>
+</div>
 
-<h1>Change password</h1>
+<div style="width: 300px; height: 400px; float: left; padding: 10px;">
 
-<%- partial('users/change_password.ejs', {locals: {user: user}}) %>
+  <h1>Change password</h1>
+
+  <%- partial('users/change_password.ejs', {locals: {user: user}}) %>
+</div>

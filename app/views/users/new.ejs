@@ -1,7 +1,8 @@
+<h1>Sign up</h1>
 <form action="/users/" method="post">
 
   <label for="email">Email</label><br/>
-  <input type="text" id="email" name="user[email]" />
+  <input type="text" id="email" name="user[email]" /><br/>
 
   <script type="text/javascript"
     src="http://www.google.com/recaptcha/api/challenge?k=<%- recaptchaKey %>">
@@ -15,6 +16,6 @@
       value="manual_challenge">
     </noscript>
 
-    <input type="submit" />
+    <input type="submit" value="Join!" />
 
 </form>
