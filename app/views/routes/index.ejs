@@ -1,9 +1,9 @@
 <table>
-  <% routes.forEach(function (route) { console.log(route.toJSON()); %>
+  <% routes.forEach(function (r) { %>
     <tr>
-      <td><%= route.uuid || route.id %></td>
-      <td><%= route.name %></td>
-      <td><%= route.target %></td>
+      <td><%- link_to(r.uuid || r.id, edit_route(r)) %></td>
+      <td><%= r.name %></td>
+      <td><%= r.target %></td>
     </tr>
   <% });%>
 </table>

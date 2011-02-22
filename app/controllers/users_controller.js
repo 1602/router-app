@@ -21,8 +21,8 @@ module.exports = {
             remoteip:   '127.0.0.1'
         }, function (success, error) {
             if (!success) {
-                // next('send', 'incorrect security code');
-                // return;
+                next('send', 'incorrect security code');
+                return;
             }
 
             // Check email uniqueness
