@@ -70,7 +70,7 @@ module.exports = {
         req.user.getRoute(req.params.id, function (err, route) {
             route.update(req.body, function (err) {
                 if (!err) {
-                    req.flash('Route updated');
+                    req.flash('Info', 'Route updated');
                     next('redirect', path_to.routes);
                 } else {
                     next('render', 'edit', {route: route, title: 'Edit route details'});

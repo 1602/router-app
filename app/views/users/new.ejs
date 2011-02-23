@@ -1,5 +1,10 @@
 <h1>Sign up</h1>
-<form action="/users/" method="post">
+<script type="text/javascript">
+ var RecaptchaOptions = {
+    theme : 'clean'
+ };
+</script>
+ <form action="/users/" method="post">
 
   <label for="email">Email</label><br/>
   <input type="text" id="email" name="user[email]" /><br/>
