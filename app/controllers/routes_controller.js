@@ -18,8 +18,10 @@ module.exports = {
         }
         req.user.createRoute(req.body, function (errors) {
             if (errors) {
+                req.flash('info', 'Route can not be created');
                 next('render', 'new', {route: this});
             } else {
+                req.flash('info', 'Route created');
                 next('redirect', '/routes');
             }
         });
@@ -45,7 +47,8 @@ module.exports = {
                     }
                 } else {
                     var queryString = req.url.split('?')[1],
-                        redirect = route.redirect(queryString);
+                        redirect = route.redirect(queryString, id);
+                    console.log('redirect to', redirect);
                     next('redirect', redirect);
                 }
             });
@@ -70,9 +73,10 @@ module.exports = {
         req.user.getRoute(req.params.id, function (err, route) {
             route.update(req.body, function (err) {
                 if (!err) {
-                    req.flash('Info', 'Route updated');
+                    req.flash('info', 'Route updated');
                     next('redirect', path_to.routes);
                 } else {
+                    req.flash('error', 'Route can not be updated');
                     next('render', 'edit', {route: route, title: 'Edit route details'});
                 }
             });

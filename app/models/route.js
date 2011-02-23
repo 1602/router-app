@@ -25,9 +25,10 @@ Route.matchUUID = function (uuid) {
     return uuid.match(Route.checkUUIDRegExp);
 };
 
-Route.prototype.redirect = function (queryString) {
-    var joiner = this.target.indexOf('?') === -1 ? '?' : '&';
-    return this.target + (queryString ? joiner + queryString : '');
+Route.prototype.redirect = function (queryString, uuid) {
+    queryString = queryString ? queryString + '&' : '';
+    queryString += 'uuid=' + uuid;
+    return [this.target, queryString].join(this.target.indexOf('?') === -1 ? '?' : '&');
 };
 
 Route.prototype.validate = function () {
@@ -52,6 +53,12 @@ Route.prototype.update = function (data, callback) {
     }.bind(this));
 
     if (this.validate()) {
+        // update index
+        if (this.propertyChanged('uuid')) {
+            this.connection.del('route_by_uuid:' + this.uuid_was);
+            this.connection.set('route_by_uuid:' + this.uuid, this.id);
+        }
+        // save object
         this.save(function (err) {
             callback.call(this, err);
         }.bind(this));
