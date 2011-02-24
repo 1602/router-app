@@ -6,6 +6,19 @@
     <%- javascript_include_tag('https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js', 'rails', 'application') %>
   </head>
   <body>
+    <div class="header">
+
+      <% if (request.user) { %>
+        Logged as <%- link_to(request.user.email, edit_user(request.user)) %>
+        <%- link_to('Logout', session, {method: 'DELETE', remote: true, jsonp: '(function(url){location.href=url})'}) %>
+        Routes available: <%- request.user.freeRouteSlots() %>
+        <%- (request.user.isAdmin || request.user.isSuperAdmin()) ? link_to('Admin', admin_routes) : '' %>
+      <% } else { %>
+        <%- link_to('Login', new_session) %>
+        |
+        <%- link_to('Register', new_user) %>
+      <% } %>
+    </div>
 
     <% request.flash('info').forEach(function (flash) { %>
       <div class="flash info"><%- flash %></div>
@@ -15,14 +28,8 @@
       <div class="flash error"><%- flash %></div>
     <% }); %>
 
-    <% if (request.user) { %>
-      Logged as <%- link_to(request.user.email, edit_user(request.user)) %>
-      <%- link_to('Logout', session, {method: 'DELETE', remote: true, jsonp: '(function(url){location.href=url})'}) %>
-    <% } else { %>
-      <%- link_to('Login', new_session) %>
-      |
-      <%- link_to('Register', new_user) %>
-    <% } %>
-    <%- body %>
+    <div class="content">
+      <%- body %>
+    </div>
   </body>
 </html>

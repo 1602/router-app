@@ -19,7 +19,7 @@ module.exports = {
         }
         req.user.createRoute(req.body, function (errors) {
             if (errors) {
-                req.flash('info', 'Route can not be created');
+                req.flash('error', 'Route can not be created');
                 next('render', 'new', {
                     route: this,
                     title: '',

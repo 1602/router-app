@@ -35,7 +35,7 @@ module.exports = {
     },
     'update': function (req, next) {
         TemplateRoute.find(req.params.id, function (err, route) {
-            route.update(req.body, function (err) {
+            route.save(req.body, function (err) {
                 if (!err) {
                     TemplateRoute.reloadTemplates(function () {
                         req.flash('info', 'Route updated');

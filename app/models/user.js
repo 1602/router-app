@@ -7,6 +7,8 @@ var User = describe("User", function () {
     property("isAdmin",        Boolean);
 });
 
+User.LIMIT_ROUTES_COUNT = 10;
+
 function getRandomHash () {
     return require('crypto').createHash('md5').update(require('node-uuid')()).digest('hex');
 }
@@ -98,7 +100,11 @@ User.authenticate = function (email, password, callback) {
             callback(false, 'user not found');
         } else {
             if (user.password === User.encryptPassword(password)) {
-                callback(true, user);
+                if (user.activated) {
+                    callback(true, user);
+                } else {
+                    callback(false, 'email not confirmed');
+                }
             } else {
                 callback(false, 'wrong password');
             }
@@ -112,6 +118,12 @@ User.prototype.createRoute = function (params, callback) {
     params.user_id = user.id;
 
     var route = new Route(params);
+
+    if (this.freeRouteSlots() <= 0) {
+        route.errors = [['user', 'Routes limit reached']];
+        callback.call(route, route.errors);
+        return;
+    }
 
     if (!route.validate()) {
         callback.call(route, route.errors);
@@ -176,6 +188,14 @@ User.prototype.incrementRoutes = function (callback) {
     }
 };
 
+User.prototype.decrementRoutes = function (callback) {
+    if (this.routesCount) {
+        this.updateAttribute('routesCount', this.routesCount - 1, callback);
+    } else {
+        this.updateAttribute('routesCount', 0, callback);
+    }
+};
+
 User.prototype.changeEmail = function (email, callback) {
     var user = this;
     // remove old index
@@ -207,4 +227,12 @@ User.prototype.changeEmail = function (email, callback) {
 
 User.prototype.isSuperAdmin = function () {
     return this.email == 'rpm1602@gmail.com';
+};
+
+User.prototype.canCreateRoute = function () {
+    return this.freeRouteSlots() > 0;
+};
+
+User.prototype.freeRouteSlots = function () {
+    return User.LIMIT_ROUTES_COUNT - (this.routesCount || 0);
 };

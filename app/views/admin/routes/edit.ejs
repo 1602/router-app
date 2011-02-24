@@ -1,6 +1,6 @@
-<h1>Edit route</h1>
+<h1>Edit route template</h1>
 
-<% form_for(buf, route, {action: path_to.route(route)}, function (form) { %>
+<% form_for(buf, route, {action: path_to.admin_route(route)}, function (form) { %>
 
   <%- partial('routes/template_form.ejs', {locals: {form: form, route: route}}) %>
 

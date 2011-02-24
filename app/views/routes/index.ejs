@@ -1,8 +1,7 @@
 <% routes.forEach(function (r) { %>
 <div class="route">
   <div class="handle">
-    <%- link_to(r.template.name, edit_route(r)) %>
-    <%- link_to('Edit', edit_route(r)) %>
+    <%- link_to(r.template.name || "Edit", edit_route(r)) %>
     <%- link_to('Destroy', route(r), {method: 'DELETE', remote: true, jsonp: '(function (x) {location.href = x;})'}) %>
   </div>
   <div class="helper">
@@ -12,4 +11,8 @@
 </div>
 <% });%>
 
+<% if (request.user.freeRouteSlots()) { %>
 <%- link_to('New route', new_route) %>
+<% } else { %>
+You can not create more routes
+<% } %>

@@ -1,9 +1,8 @@
 <% routes.forEach(function (r) { %>
 <div class="route">
   <div class="handle">
-    <%- link_to(r.name, edit_route(r)) %>
-    <%- link_to('Edit', edit_route(r)) %>
-    <%- link_to('Destroy', route(r), {method: 'DELETE'}) %>
+    <%- link_to(r.name || 'Edit', edit_admin_route(r)) %>
+    <!--%- link_to('Destroy', admin_route(r), {method: 'DELETE', }) %-->
   </div>
   <div class="helper">
     redirects to <%= r.target %>

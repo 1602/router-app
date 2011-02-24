@@ -1,5 +1,5 @@
 body {
-  padding: 50px;
+  padding: 0px;
 }
 body, table, input {
   font-family: DejaVu Sans Mono, fixed;
@@ -11,4 +11,43 @@ body, table, input {
 h1 {
   line-height: 3em;
   font-size: 1.3em;
+}
+
+.helper, .helper * {
+  font-size: 12px;
+}
+
+a, a:link, a:visited, a:active, a:hover {
+  color: #479;
+}
+
+.header {
+  padding-left: 25px;
+  padding-top: 25px;
+  height: 50px;
+  clear: both;
+}
+
+.content {
+  padding-left: 50px;
+  clear: both;
+}
+
+.flash {
+  padding: 25px;
+  margin: 25px;
+  float:left;
+  clear: both;
+}
+
+.flash.error {
+  border: 1px solid red;
+  background: #fee;
+  color: #900;
+}
+
+.flash.info {
+  border: 1px solid green;
+  background: #efe;
+  color: #090;
 }
