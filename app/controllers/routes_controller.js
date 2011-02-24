@@ -9,7 +9,8 @@ module.exports = {
         }
         next('render', {
             route: route,
-            title: 'New route'
+            title: 'New route',
+            template_routes: app.template_routes
         });
     },
     'create': function (req, next) {
@@ -19,7 +20,11 @@ module.exports = {
         req.user.createRoute(req.body, function (errors) {
             if (errors) {
                 req.flash('info', 'Route can not be created');
-                next('render', 'new', {route: this});
+                next('render', 'new', {
+                    route: this,
+                    title: '',
+                    template_routes: app.template_routes
+                });
             } else {
                 req.flash('info', 'Route created');
                 next('redirect', '/routes');
@@ -28,6 +33,8 @@ module.exports = {
     },
     'index': function (req, next) {
         req.user.getRoutes(function (routes) {
+            routes = routes.map(function (r) { r.assignTemplate(); return r;});
+            console.log(routes);
             next('render', {
                 routes: routes,
                 title: 'Routes index'
@@ -65,7 +72,8 @@ module.exports = {
         req.user.getRoute(req.params.id, function (err, route) {
             next('render', {
                 route: route,
-                title: 'Edit route details'
+                title: 'Edit route details',
+                template_routes: app.template_routes
             });
         });
     },
@@ -77,7 +85,11 @@ module.exports = {
                     next('redirect', path_to.routes);
                 } else {
                     req.flash('error', 'Route can not be updated');
-                    next('render', 'edit', {route: route, title: 'Edit route details'});
+                    next('render', 'edit', {
+                        route: route,
+                        title: 'Edit route details',
+                        template_routes: app.template_routes
+                    });
                 }
             });
         });
@@ -90,7 +102,7 @@ module.exports = {
                 } else {
                     req.flash('info', 'Route successfully removed');
                 }
-                next('redirect', path_to.routes);
+                next('send', "'" + path_to.routes + "'");
             });
         });
     }

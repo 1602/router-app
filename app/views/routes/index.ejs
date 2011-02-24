@@ -1,13 +1,15 @@
 <% routes.forEach(function (r) { %>
 <div class="route">
   <div class="handle">
-    <%- link_to(r.name, edit_route(r)) %>
+    <%- link_to(r.template.name, edit_route(r)) %>
     <%- link_to('Edit', edit_route(r)) %>
-    <%- link_to('Destroy', route(r), {method: 'DELETE'}) %>
+    <%- link_to('Destroy', route(r), {method: 'DELETE', remote: true, jsonp: '(function (x) {location.href = x;})'}) %>
   </div>
   <div class="helper">
-    <%- input_tag({value: 'http://router.node-js.ru/routes/' + r.uuid, onclick: 'this.select(); return false;'}) %>
-    redirects to <%= r.target %>
+    <%- input_tag({value: 'http://router.node-js.ru/routes/' + r.uuid, onclick: 'this.select(); return false;', size: 50}) %>
+    redirects to <%= r.template.target %>
   </div>
 </div>
 <% });%>
+
+<%- link_to('New route', new_route) %>

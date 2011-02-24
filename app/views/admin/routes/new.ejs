@@ -1,0 +1,6 @@
+<h1>New route</h1>
+
+<% form_for(buf, route, {action: admin_routes}, function (form) { %>
+  <%- partial('routes/template_form.ejs', {locals: {form: form, route: route}}) %>
+  <%- form.submit('Create route') %>
+<% });%>

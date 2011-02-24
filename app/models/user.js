@@ -4,6 +4,7 @@ var User = describe("User", function () {
     property("activationCode", String);
     property("activated",      Boolean);
     property("routesCount",    Number);
+    property("isAdmin",        Boolean);
 });
 
 function getRandomHash () {
@@ -202,4 +203,8 @@ User.prototype.changeEmail = function (email, callback) {
             console.log(arguments);
         });
     });
+};
+
+User.prototype.isSuperAdmin = function () {
+    return this.email == 'rpm1602@gmail.com';
 };

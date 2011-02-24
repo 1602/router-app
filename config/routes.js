@@ -6,6 +6,14 @@ function userRequired (req, res, next) {
     }
 }
 
+function adminRequired (req, res, next) {
+    if (!req.user || !(req.user.admin || req.user.isSuperAdmin())) {
+        res.redirect('/sessions/new');
+    } else {
+        next();
+    }
+}
+
 exports.routes = function (map) {
     map.resources('users', {only: ['new', 'create', 'edit']}, function (user) {
         user.get('activate', 'users#activate');
@@ -17,4 +25,9 @@ exports.routes = function (map) {
 
     map.get('/', 'routes#index', userRequired);
     map.resources('routes', {middleware: userRequired, middlewareExcept: ['show']});
+
+    map.namespace('admin', function (admin) {
+        admin.resources('routes', {middleware: adminRequired}, function (route) {
+        });
+    })
 };

@@ -13,11 +13,13 @@
 </p>
 
 <p>
-  <%- form.label('name') %><br/>
-  <%- form.input('name') %>
-</p>
-
-<p>
-  <%- form.label('target') %><br/>
-  <%- form.input('target', {size: 40}) %>
+  <%- form.label('template_route_id', 'Route') %><br/>
+  <select name="template_route_id" id="template_route_id">
+    <option value="">Please select route</option>
+    <% template_routes.forEach(function (template) { %>
+    <option <%= route.template_route_id == template.id ? 'selected' : '' %> value="<%= template.id %>">
+      <%= template.name %>
+    </option>
+    <% }); %>
+  </select>
 </p>

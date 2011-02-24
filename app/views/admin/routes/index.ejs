@@ -1,0 +1,14 @@
+<% routes.forEach(function (r) { %>
+<div class="route">
+  <div class="handle">
+    <%- link_to(r.name, edit_route(r)) %>
+    <%- link_to('Edit', edit_route(r)) %>
+    <%- link_to('Destroy', route(r), {method: 'DELETE'}) %>
+  </div>
+  <div class="helper">
+    redirects to <%= r.target %>
+  </div>
+</div>
+<% });%>
+
+<%- link_to('New template route', new_admin_route) %>
