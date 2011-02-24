@@ -66,3 +66,14 @@ Route.prototype.update = function (data, callback) {
         callback.call(this, this.errors);
     }
 };
+
+Route.prototype.removeWithIndex = function (callback) {
+    var route = this;
+    this.destroy(function (err) {
+        if (!err) {
+            route.connection.del('route_by_uuid:' + route.uuid);
+            route.connection.del('route_by_user:' + route.user_id);
+        }
+        callback(err);
+    });
+};

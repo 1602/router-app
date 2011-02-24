@@ -1,9 +1,13 @@
-<table>
-  <% routes.forEach(function (r) { %>
-    <tr>
-      <td><%- link_to(r.uuid || r.id, edit_route(r)) %></td>
-      <td><%= r.name %></td>
-      <td><%= r.target %></td>
-    </tr>
-  <% });%>
-</table>
+<% routes.forEach(function (r) { %>
+<div class="route">
+  <div class="handle">
+    <%- link_to(r.name, edit_route(r)) %>
+    <%- link_to('Edit', edit_route(r)) %>
+    <%- link_to('Destroy', route(r), {method: 'DELETE'}) %>
+  </div>
+  <div class="helper">
+    <%- input_tag({value: 'http://router.node-js.ru/routes/' + r.uuid, onclick: 'this.select(); return false;'}) %>
+    redirects to <%= r.target %>
+  </div>
+</div>
+<% });%>

@@ -81,5 +81,17 @@ module.exports = {
                 }
             });
         });
+    },
+    'destroy': function (req, next) {
+        req.user.getRoute(req.params.id, function (err, route) {
+            route.removeWithIndex(function (error) {
+                if (err || error) {
+                    req.flash('error', 'Can not destroy route');
+                } else {
+                    req.flash('info', 'Route successfully removed');
+                }
+                next('redirect', path_to.routes);
+            });
+        });
     }
 };
