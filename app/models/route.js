@@ -28,7 +28,7 @@ Route.matchUUID = function (uuid) {
 Route.prototype.redirect = function (queryString, uuid) {
     queryString = queryString ? queryString + '&' : '';
     queryString += 'uuid=' + uuid;
-    return [this.target, queryString].join(this.target.indexOf('?') === -1 ? '?' : '&');
+    return [this.template.target, queryString].join(this.template.target.indexOf('?') === -1 ? '?' : '&');
 };
 
 Route.prototype.validate = function () {
