@@ -61,12 +61,21 @@ module.exports = {
             });
             return;
         }
-        req.user.getRoute(req.params.id, function (route) {
-            next('render', {
-                route: route,
-                title: 'Route details'
+        if (req.user) {
+            req.user.getRoute(req.params.id, function (route) {
+                if (route) {
+                    next('render', {
+                        route: route,
+                        title: 'Route details'
+                    });
+                } else {
+                    req.flash('error', 'Route not found');
+                    next('redirect', '/');
+                }
             });
-        });
+        } else {
+            next('redirect', path_to.new_session);
+        }
     },
     'edit': function (req, next) {
         req.user.getRoute(req.params.id, function (err, route) {
