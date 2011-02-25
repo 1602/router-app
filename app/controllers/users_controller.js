@@ -21,20 +21,23 @@ module.exports = {
             remoteip:   '127.0.0.1'
         }, function (success, error) {
             if (!success) {
-                next('send', 'incorrect security code');
+                req.flash('error', 'Incorrect security code');
+                next('redirect', path_to.new_user);
                 return;
             }
 
             // Check email uniqueness
             User.find_by_email(email, function (err) {
                 if (!err) {
-                    next('send', 'Email already taken');
+                    req.flash('error', 'Email already taken');
+                    next('redirect', path_to.new_user);
                     return;
                 }
 
                 // Everything ok, register user
                 User.register(email, function (err, message) {
-                    next('send', 'check email');
+                    req.flash('info', 'Please check you email to confirm account and finish registration');
+                    next('redirect', '/');
                 });
             });
         });
@@ -52,9 +55,14 @@ module.exports = {
     },
     'changePassword': function (req, next) {
         if (req.user.changePassword(req.body.current_password, req.body.password)) {
-            next('send', 'password changed');
+            req.flash('info', 'Password has been changed');
+            next('redirect', '/');
         } else {
-            next('send', 'password not changed');
+            req.flash('error', 'Can not change password');
+            next('render', 'edit', {
+                user: req.user,
+                title: 'Edit account details'
+            });
         }
     },
     'edit': function (req, next) {
@@ -71,9 +79,13 @@ module.exports = {
     'changeEmail': function (req, next) {
         if (req.user.email !== req.body.email) {
             req.user.changeEmail(req.body.email);
-            next('send', 'confirmation required');
+            next('send', 'Confirmation required');
         } else {
-            next('send', 'email the same');
+            req.flash('error', 'email the same');
+            next('render', 'edit', {
+                user: req.user,
+                title: 'Edit account details'
+            });
         }
     }
 };

@@ -33,7 +33,7 @@ User.activate = function (code, callback) {
                 callback.call(this, err);
             }.bind(this));
             // Email index
-            User.connection.set('user_by_email:' + this.email, this.id);
+            User.connection.set('user_by_email:' + this.email.toLowerCase(), this.id);
         });
     });
 };
@@ -48,7 +48,7 @@ User.encryptPassword = function (password) {
 };
 
 User.find_by_email = function (email, callback) {
-    User.connection.get('user_by_email:' + email, function (err, data) {
+    User.connection.get('user_by_email:' + email.toLowerCase(), function (err, data) {
         if (!err && data) {
             User.find(data.toString(), callback);
         } else {
@@ -95,7 +95,7 @@ User.prototype.changePassword = function (old_password, password) {
 };
 
 User.authenticate = function (email, password, callback) {
-    User.find_by_email(email, function (err, user) {
+    User.find_by_email(email.toLowerCase(), function (err, user) {
         if (err) {
             callback(false, 'user not found');
         } else {
