@@ -92,6 +92,9 @@ User.register = function (email, callback) {
 User.prototype.changePassword = function (old_password, password) {
     if (User.encryptPassword(old_password) == this.password || this.password == '') {
         this.updateAttribute('password', User.encryptPassword(password));
+        if (this.forcePassChange) {
+            this.updateAttribute('forcePassChange', false);
+        }
         return true;
     } else {
         return false;
