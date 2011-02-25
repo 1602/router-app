@@ -5,14 +5,14 @@
     <%- link_to('Destroy', route(r), {method: 'DELETE', remote: true, jsonp: '(function (x) {location.href = x;})'}) %>
   </div>
   <div class="helper">
-    <%- input_tag({value: 'http://router.node-js.ru/routes/' + r.uuid, onclick: 'this.select(); return false;', size: 50}) %>
-    redirects to <%= r.template.target %>
+    redirects to <%- link_to(r.template.target, '/routes/' + r.uuid) %>
+    </a>
   </div>
 </div>
 <% });%>
 
 <% if (request.user.freeRouteSlots()) { %>
-<%- link_to('New route', new_route) %>
+  <%- link_to('New route', new_route) %>
 <% } else { %>
-You can not create more routes
+  You can not create more routes
 <% } %>

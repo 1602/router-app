@@ -30,4 +30,8 @@ exports.routes = function (map) {
         admin.resources('routes', {middleware: adminRequired}, function (route) {
         });
     })
+
+    map.get('/reset_password', 'users#resetPasswordRequest');
+    map.post('/reset_password', 'users#resetPassword');
+    map.get('/reset_password_confirm', 'users#resetPasswordConfirm');
 };

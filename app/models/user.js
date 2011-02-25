@@ -212,21 +212,9 @@ User.prototype.changeEmail = function (email, callback) {
         var activationCode = User.createActivationCode();
         // re-activation required
         user.prepareActivation(activationCode);
-        require('mailer').send({
-            host: "localhost",              // smtp server hostname
-            port: "25",                     // smtp server port
-            ssl: true,                      // for SSL support - REQUIRES NODE v0.3.x OR HIGHER
-            domain: "node-js.ru",            // domain used by client to identify itself to server
-            to: this.email,
-            from: "noreply@node-js.ru",
-            subject: "Activate your account",
-            body: "Hi!\n To confirm email after email changing please follow link: http://router.node-js.ru/users/" + activationCode + "/activate?nopasschange=true",
-            authentication: "no auth",        // auth login is supported; anything else is no auth
-            username: new Buffer('user').toString('base64'),       // Base64 encoded username
-            password: new Buffer('53cr3t').toString('base64')        // Base64 encoded password
-        }, function () {
-            console.log(arguments);
-        });
+        sendEmail(this.email, "Activate your account", "Hi!\n To confirm email after email\
+        changing please follow link:\
+        http://router.node-js.ru/users/" + activationCode + "/activate?nopasschange=true");
     });
 };
 
@@ -241,3 +229,54 @@ User.prototype.canCreateRoute = function () {
 User.prototype.freeRouteSlots = function () {
     return User.LIMIT_ROUTES_COUNT - (this.routesCount || 0);
 };
+
+User.prototype.requestPasswordChange = function () {
+    var activationCode = User.createActivationCode();
+    User.connection.set('reset_password:' + activationCode, this.id);
+    sendEmail(this.email, "Reset password instruction",
+    "Hi!\n If you want to change your password please follow the link:\
+    http://router.node-js.ru/reset_password_confirm?code=" + activationCode
+    );
+};
+
+User.resetPassword = function (activationCode, callback) {
+    User.connection.get('reset_password:' + activationCode, function (err, data) {
+        if (err || !data) {
+            callback(true, 'wrong activation code');
+            return;
+        }
+        User.find(data.toString(), function (err, user) {
+            console.log(arguments);
+            if (err) {
+                callback(true, 'user not found');
+                return;
+            }
+            var newPassword = User.generatePassword();
+            user.updateAttribute('password', User.encryptPassword(newPassword));
+            user.connection.del('reset_password:' + activationCode);
+            sendEmail(this.email, 'Your password has been reset', 'New password is: ' + newPassword + '\n');
+            callback(false);
+        });
+    });
+};
+
+function sendEmail(email, subj, body) {
+    require('mailer').send({
+        host:          "localhost",              // smtp server hostname
+        port:          "25",                     // smtp server port
+        domain:        "node-js.ru",             // domain used by client to identify itself to server
+        from:          "noreply@node-js.ru",
+        ssl:           true,
+        to:            email,
+        subject:       subj,
+        body:          body,
+        authentication: "no auth"        // auth login is supported; anything else is no auth
+    }, function (err) {
+        if (!err) {
+            console.log('=== Email sent');
+            console.log(email);
+            console.log(subj);
+            console.log(body);
+        }
+    });
+}

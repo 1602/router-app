@@ -88,6 +88,56 @@ module.exports = {
                 title: 'Edit account details'
             });
         }
+    },
+    'resetPasswordRequest': function (req, next) {
+        next('render', 'reset_password', {
+            title: 'Reset password request',
+            recaptchaKey: config.recaptcha.publicKey //'6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp'
+        });
+    },
+    'resetPassword': function (req, next) {
+        // Check required params
+        var email = req.body['email'];
+        if (!email || !email.match(/^[^@]*?@[^@]*$/)) {
+            req.flash('error', 'Incorrect email');
+            next('redirect', path_to.reset_password);
+            return;
+        }
+
+        // Check captcha
+        require('../../lib/recaptcha.js').verifyCaptcha({
+            challenge:  req.body.recaptcha_challenge_field,
+            response:   req.body.recaptcha_response_field,
+            privatekey: config.recaptcha.privateKey, //'6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5',
+            remoteip:   '127.0.0.1'
+        }, function (success, error) {
+            if (!success) {
+                req.flash('error', 'Incorrect security code');
+                next('redirect', path_to.reset_password);
+                return;
+            }
+            User.find_by_email(req.body.email, function (err, user) {
+                if (err) {
+                    req.flash('error', 'User not found');
+                    next('redirect', path_to.reset_password);
+                } else {
+                    user.requestPasswordChange();
+                    req.flash('info', 'Reset instructions has been sent to your email address');
+                    next('redirect', path_to.reset_password);
+                }
+            });
+        });
+    },
+    'resetPasswordConfirm': function (req, next) {
+        console.log(req.query.code);
+        User.resetPassword(req.query.code, function (err, reason) {
+            if (err) {
+                req.flash('error', 'Could not reset password: ' + reason);
+            } else {
+                req.flash('info', 'Your password has been reset, check your email');
+            }
+            next('redirect', path_to.new_session);
+        });
     }
 };
 
