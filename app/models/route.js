@@ -26,6 +26,7 @@ Route.matchUUID = function (uuid) {
 };
 
 Route.prototype.redirect = function (queryString, uuid) {
+    this.assignTemplate();
     queryString = queryString ? queryString + '&' : '';
     queryString += 'uuid=' + uuid;
     return [this.template.target, queryString].join(this.template.target.indexOf('?') === -1 ? '?' : '&');
