@@ -19,7 +19,7 @@ module.exports = {
         User.authenticate(req.body.email, req.body.password, function (success, user) {
             if (success) {
                 req.session.user_id = user.id;
-                next('redirect', '/');
+                next('redirect', req.session.pendingUUID ? path_to.new_route : '/');
             } else {
                 req.flash('error', 'Can not authenticate user with given credentials: ' + user);
                 next('redirect', path_to.new_session);

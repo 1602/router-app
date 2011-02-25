@@ -3,6 +3,7 @@ var User = describe("User", function () {
     property("password",       String);
     property("activationCode", String);
     property("activated",      Boolean);
+    property("forcePassChange",Boolean);
     property("routesCount",    Number);
     property("isAdmin",        Boolean);
 });
@@ -63,12 +64,12 @@ User.find_by_email = function (email, callback) {
 };
 
 User.register = function (email, callback) {
-    var password = User.generatePassword();
     User.create({
         email: email,
         activationCode: User.createActivationCode(),
         activated: false,
-        password: User.encryptPassword(password)
+        password: '',
+        forcePassChange: true
     }, function (id) {
         this.prepareActivation();
         require('mailer').send({
@@ -79,10 +80,8 @@ User.register = function (email, callback) {
             to: this.email,
             from: "noreply@webdesk.homelinux.org",
             subject: "Activate your account",
-            body: "Hi!\n To activate you account follow link: http://router.node-js.ru/users/" + this.activationCode + "/activate?otp=" + password + "\n\nYour temporary password is: " + password,
-            authentication: "no auth",        // auth login is supported; anything else is no auth
-            username: new Buffer('user').toString('base64'),       // Base64 encoded username
-            password: new Buffer('53cr3t').toString('base64')        // Base64 encoded password
+            body: "Hi!\n To activate you account follow the link: http://router.node-js.ru/users/" + this.activationCode + "/activate",
+            authentication: "no auth"
         }, function () {
             // console.log(arguments);
         });
@@ -91,7 +90,7 @@ User.register = function (email, callback) {
 };
 
 User.prototype.changePassword = function (old_password, password) {
-    if (User.encryptPassword(old_password) == this.password) {
+    if (User.encryptPassword(old_password) == this.password || this.password == '') {
         this.updateAttribute('password', User.encryptPassword(password));
         return true;
     } else {
@@ -100,21 +99,33 @@ User.prototype.changePassword = function (old_password, password) {
 };
 
 User.authenticate = function (email, password, callback) {
-    User.find_by_email(email.toLowerCase(), function (err, user) {
-        if (err) {
-            callback(false, 'user not found');
-        } else {
-            if (user.password === User.encryptPassword(password)) {
+    User.find_by_email(email, function (err, user) {
+        if (!err) {
+            if (user.matchPassword(password)) {
                 if (user.activated) {
-                    callback(true, user);
+                    success(user);
                 } else {
-                    callback(false, 'email not confirmed');
+                    fail('email not confirmed');
                 }
             } else {
-                callback(false, 'wrong password');
+                fail('wrong password');
             }
+        } else {
+            fail('user not found');
         }
     });
+
+    function fail(message) {
+        callback(false, message);
+    }
+
+    function success(user) {
+        callback(true, user);
+    }
+};
+
+User.prototype.matchPassword = function (password) {
+    return this.password === User.encryptPassword(password);
 };
 
 User.prototype.createRoute = function (params, callback) {

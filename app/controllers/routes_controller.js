@@ -34,7 +34,6 @@ module.exports = {
     'index': function (req, next) {
         req.user.getRoutes(function (routes) {
             routes = routes.map(function (r) { r.assignTemplate(); return r;});
-            console.log(routes);
             next('render', {
                 routes: routes,
                 title: 'Routes index'
@@ -47,11 +46,7 @@ module.exports = {
             Route.findByUUID(id, function (notFound, route) {
                 if (notFound) {
                     req.session.pendingUUID = id;
-                    if (req.user) {
-                        next('redirect', '/routes/new');
-                    } else {
-                        next('redirect', '/users/new');
-                    }
+                    next('redirect', '/routes/claim');
                 } else {
                     var queryString = req.url.split('?')[1],
                         redirect = route.redirect(queryString, id);
@@ -114,5 +109,14 @@ module.exports = {
                 next('send', "'" + path_to.routes + "'");
             });
         });
+    },
+    'claim': function (req, next) {
+        next('render', {
+            title: 'Claim route'
+        });
+    },
+    'disclaim': function (req, next) {
+        delete req.session.pendingUUID;
+        next('redirect', '/');
     }
 };

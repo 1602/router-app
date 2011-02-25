@@ -1,8 +1,6 @@
 <% if (user) { %>
   <% if (changePasswordRequired) { %>
-    Your account has been successfully activated. Strongly recommended to 
-    change your password now. But you can do this later any time.
-
+    To activate your account please choose your password
     <%- partial('users/change_password.ejs', {locals: {user: user}}) %>
 
   <% } else { %>

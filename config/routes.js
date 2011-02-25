@@ -2,7 +2,11 @@ function userRequired (req, res, next) {
     if (!req.user) {
         res.redirect('/sessions/new');
     } else {
-        next();
+        if (req.user.forcePassChange && !req.url.match(/change_password/)) {
+            res.redirect('/change_password');
+        } else {
+            next();
+        }
     }
 }
 
@@ -22,8 +26,12 @@ exports.routes = function (map) {
     });
 
     map.resources('sessions', {only: ['new', 'create', 'destroy']});
+    map.get('change_password', 'users#changePasswordRequired', userRequired);
 
     map.get('/', 'routes#index', userRequired);
+    map.get('/routes/claim', 'routes#claim');
+    map.get('/routes/disclaim', 'routes#disclaim');
+
     map.resources('routes', {middleware: userRequired, middlewareExcept: ['show']});
 
     map.namespace('admin', function (admin) {

@@ -1,7 +1,8 @@
 <% routes.forEach(function (r) { %>
 <div class="route">
   <div class="handle">
-    <%- link_to(r.template.name || "Edit", edit_route(r)) %>
+    <%- link_to(r.uuid, edit_route(r)) %>
+    <%- r.template.name %>
     <%- link_to('Destroy', route(r), {method: 'DELETE', remote: true, jsonp: '(function (x) {location.href = x;})'}) %>
   </div>
   <div class="helper">

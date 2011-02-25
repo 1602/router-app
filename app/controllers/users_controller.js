@@ -2,14 +2,14 @@ module.exports = {
     'new': function (req, next) {
         next('render', {
             title: 'New user registration',
-            recaptchaKey: config.recaptcha.publicKey //'6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp'
+            recaptchaKey: config.recaptcha.publicKey
         });
     },
     'create': function (req, next) {
         // Check required params
         var email = req.body['user[email]'];
         if (!email || !email.match(/^[^@]*?@[^@]*$/)) {
-            next('send', 'incorrect email');
+            req.flash('error', 'Incorrect email');
             return;
         }
 
@@ -17,7 +17,7 @@ module.exports = {
         require('../../lib/recaptcha.js').verifyCaptcha({
             challenge:  req.body.recaptcha_challenge_field,
             response:   req.body.recaptcha_response_field,
-            privatekey: config.recaptcha.privateKey, //'6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5',
+            privatekey: config.recaptcha.privateKey,
             remoteip:   '127.0.0.1'
         }, function (success, error) {
             if (!success) {
@@ -46,7 +46,6 @@ module.exports = {
         User.activate(req.params.user_id, function (err) {
             // authenticate user
             req.session.user_id = this.id;
-            this.otp = req.query.otp;
             next('render', {
                 title: 'User activation',
                 user: err ? null : this,
@@ -57,7 +56,7 @@ module.exports = {
     'changePassword': function (req, next) {
         if (req.user.changePassword(req.body.current_password, req.body.password)) {
             req.flash('info', 'Password has been changed');
-            next('redirect', '/');
+            next('redirect', req.session.pendingUUID ? path_to.new_route : '/');
         } else {
             req.flash('error', 'Can not change password');
             next('render', 'edit', {
@@ -65,6 +64,12 @@ module.exports = {
                 title: 'Edit account details'
             });
         }
+    },
+    'changePasswordRequired': function (req, next) {
+        next('render', 'change_password', {
+            title: 'Change password',
+            user: req.user
+        });
     },
     'edit': function (req, next) {
         if (req.user) {
@@ -108,7 +113,7 @@ module.exports = {
         require('../../lib/recaptcha.js').verifyCaptcha({
             challenge:  req.body.recaptcha_challenge_field,
             response:   req.body.recaptcha_response_field,
-            privatekey: config.recaptcha.privateKey, //'6Lcss8ESAAAAAFjSqRPRhz0wCLpsdhUev5qN7UG5',
+            privatekey: config.recaptcha.privateKey,
             remoteip:   '127.0.0.1'
         }, function (success, error) {
             if (!success) {
@@ -129,7 +134,6 @@ module.exports = {
         });
     },
     'resetPasswordConfirm': function (req, next) {
-        console.log(req.query.code);
         User.resetPassword(req.query.code, function (err, reason) {
             if (err) {
                 req.flash('error', 'Could not reset password: ' + reason);
