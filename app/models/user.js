@@ -217,10 +217,12 @@ User.prototype.decrementRoutes = function (callback) {
 
 User.prototype.changeEmail = function (email, callback) {
     var user = this;
+    // trim
+    email = email.replace(/^\s+|\s+$/g, '');
     // remove old index
-    User.connection.del('user_by_email:' + user.email);
+    User.connection.del('user_by_email:' + user.email.toLowerCase());
     // add new index
-    User.connection.set('user_by_email:' + email, user.id);
+    User.connection.set('user_by_email:' + email.toLowerCase(), user.id);
     // update property
     this.updateAttribute('email', email, function () {
         var activationCode = User.createActivationCode();
