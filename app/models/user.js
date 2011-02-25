@@ -27,14 +27,19 @@ User.prototype.prepareActivation = function (activationCode) {
 
 User.activate = function (code, callback) {
     User.connection.get('activation:' + code, function (err, data) {
-        var user_id = data.toString();
-        User.find(user_id, function () {
-            this.updateAttribute('activated', true, function () {
-                callback.call(this, err);
-            }.bind(this));
-            // Email index
-            User.connection.set('user_by_email:' + this.email.toLowerCase(), this.id);
-        });
+        if (!err && data) {
+            var user_id = data.toString();
+            User.find(user_id, function () {
+                User.connection.del('activation:' + code);
+                this.updateAttribute('activated', true, function () {
+                    callback.call(this, err);
+                }.bind(this));
+                // Email index
+                User.connection.set('user_by_email:' + this.email.toLowerCase(), this.id);
+            });
+        } else {
+            callback(true);
+        }
     });
 };
 
@@ -74,7 +79,7 @@ User.register = function (email, callback) {
             to: this.email,
             from: "noreply@webdesk.homelinux.org",
             subject: "Activate your account",
-            body: "Hi!\n To activate you account follow link: http://router.node-js.ru/users/" + this.activationCode + "/activate\n\nYour temporary password is: " + password,
+            body: "Hi!\n To activate you account follow link: http://router.node-js.ru/users/" + this.activationCode + "/activate?otp=" + password + "\n\nYour temporary password is: " + password,
             authentication: "no auth",        // auth login is supported; anything else is no auth
             username: new Buffer('user').toString('base64'),       // Base64 encoded username
             password: new Buffer('53cr3t').toString('base64')        // Base64 encoded password

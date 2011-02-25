@@ -46,6 +46,7 @@ module.exports = {
         User.activate(req.params.user_id, function (err) {
             // authenticate user
             req.session.user_id = this.id;
+            this.otp = req.query.otp;
             next('render', {
                 title: 'User activation',
                 user: err ? null : this,
