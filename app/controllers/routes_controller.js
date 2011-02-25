@@ -5,7 +5,7 @@ module.exports = {
         if (req.session.pendingUUID) {
             route.uuid = req.session.pendingUUID;
         } else {
-            route.generateUUID();
+            // route.generateUUID();
         }
         next('render', {
             route: route,
