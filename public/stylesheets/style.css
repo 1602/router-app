@@ -51,3 +51,7 @@ a, a:link, a:visited, a:active, a:hover {
   background: #efe;
   color: #090;
 }
+
+a.small {
+  font-size: 12px;
+}

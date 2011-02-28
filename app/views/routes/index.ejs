@@ -1,11 +1,16 @@
 <% routes.forEach(function (r) { %>
 <div class="route">
   <div class="handle">
-    <%- link_to(r.uuid, edit_route(r)) %>
-    <%- r.template.name %>
-    <%- link_to('Destroy', route(r), {method: 'DELETE', remote: true, jsonp: '(function (x) {location.href = x;})'}) %>
+    <h3>
+      <%= r.name %>
+    </h3>
+    <%- link_to(r.uuid, edit_route(r), {class: 'small'}) %>
+    <%- link_to('Destroy', route(r), {class: 'small', method: 'DELETE', remote: true, jsonp: '(function (x) {location.href = x;})'}) %>
   </div>
   <div class="helper">
+    <div class="description">
+      <%= r.description %>
+    </div>
     redirects to <%- link_to(r.template.target, '/routes/' + r.uuid) %>
     </a>
   </div>

@@ -1,6 +1,8 @@
 var Route = describe("Route", function () {
-    property("uuid", String);
-    property("user_id", Number);
+    property("uuid",        String);
+    property("name",        String);
+    property("description", String);
+    property("user_id",     Number);
     property("template_route_id", Number);
 });
 

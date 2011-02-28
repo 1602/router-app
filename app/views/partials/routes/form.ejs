@@ -19,6 +19,16 @@ $(function () {
 </p>
 
 <p>
+  <%- form.label('name') %><br/>
+  <%- form.input('name') %>
+</p>
+
+<p>
+  <%- form.label('description') %><br/>
+  <%- form.textarea('description', {cols: 40, rows: 5}) %>
+</p>
+
+<p>
   <%- form.label('template_route_id', 'Route') %><br/>
   <select name="template_route_id" id="template_route_id">
     <option value="">Please select route</option>

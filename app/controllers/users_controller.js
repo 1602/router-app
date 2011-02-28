@@ -1,147 +1,160 @@
-module.exports = {
-    'new': function (req, next) {
-        next('render', {
-            title: 'New user registration',
-            recaptchaKey: config.recaptcha.publicKey
-        });
-    },
-    'create': function (req, next) {
-        // Check required params
-        var email = req.body['user[email]'];
-        if (!email || !email.match(/^[^@]*?@[^@]*$/)) {
-            req.flash('error', 'Incorrect email');
+
+action('new', function () {
+    render({
+        title: 'New user registration',
+        recaptchaKey: app.config.recaptcha.publicKey
+    });
+});
+
+action('create', function () {
+    // Check required params
+    var email = req.body['user[email]'];
+    if (!email || !email.match(/^[^@]*?@[^@]*$/)) {
+        flash('error', 'Incorrect email');
+        return;
+    }
+
+    // Check captcha
+    require(__dirname + '/lib/recaptcha.js').verifyCaptcha({
+        challenge:  req.body.recaptcha_challenge_field,
+        response:   req.body.recaptcha_response_field,
+        privatekey: app.config.recaptcha.privateKey,
+        remoteip:   '127.0.0.1'
+    }, function (success, error) {
+        if (!success && app.settings.env !== 'development') {
+            flash('error', 'Incorrect security code');
+            redirect(path_to.new_user);
             return;
         }
 
-        // Check captcha
-        require('../../lib/recaptcha.js').verifyCaptcha({
-            challenge:  req.body.recaptcha_challenge_field,
-            response:   req.body.recaptcha_response_field,
-            privatekey: config.recaptcha.privateKey,
-            remoteip:   '127.0.0.1'
-        }, function (success, error) {
-            if (!success) {
-                req.flash('error', 'Incorrect security code');
-                next('redirect', path_to.new_user);
+        // Check email uniqueness
+        User.find_by_email(email, function (err) {
+            if (!err) {
+                flash('error', 'Email already taken');
+                redirect(path_to.new_user);
                 return;
             }
 
-            // Check email uniqueness
-            User.find_by_email(email, function (err) {
-                if (!err) {
-                    req.flash('error', 'Email already taken');
-                    next('redirect', path_to.new_user);
-                    return;
-                }
-
-                // Everything ok, register user
-                User.register(email, function (err, message) {
-                    req.flash('info', 'Please check you email to confirm account and finish registration');
-                    next('redirect', '/');
-                });
-            });
-        });
-    },
-    'activate': function (req, next) {
-        User.activate(req.params.user_id, function (err) {
-            // authenticate user
-            req.session.user_id = this.id;
-            next('render', {
-                title: 'User activation',
-                user: err ? null : this,
-                changePasswordRequired: !req.query.nopasschange
-            });
-        });
-    },
-    'changePassword': function (req, next) {
-        if (req.user.changePassword(req.body.current_password, req.body.password)) {
-            req.flash('info', 'Password has been changed');
-            next('redirect', req.session.pendingUUID ? path_to.new_route : '/');
-        } else {
-            req.flash('error', 'Can not change password');
-            next('render', 'edit', {
-                user: req.user,
-                title: 'Edit account details'
-            });
-        }
-    },
-    'changePasswordRequired': function (req, next) {
-        next('render', 'change_password', {
-            title: 'Change password',
-            user: req.user
-        });
-    },
-    'edit': function (req, next) {
-        if (req.user) {
-            next('render', {
-                user: req.user,
-                title: 'Edit account details'
-            });
-        } else {
-            req.flash('Authorization required');
-            next('redirect', path_to.new_session);
-        }
-    },
-    'changeEmail': function (req, next) {
-        if (req.user.email !== req.body.email) {
-            req.user.changeEmail(req.body.email);
-            next('send', 'Confirmation required');
-        } else {
-            req.flash('error', 'email the same');
-            next('render', 'edit', {
-                user: req.user,
-                title: 'Edit account details'
-            });
-        }
-    },
-    'resetPasswordRequest': function (req, next) {
-        next('render', 'reset_password', {
-            title: 'Reset password request',
-            recaptchaKey: config.recaptcha.publicKey //'6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp'
-        });
-    },
-    'resetPassword': function (req, next) {
-        // Check required params
-        var email = req.body['email'];
-        if (!email || !email.match(/^[^@]*?@[^@]*$/)) {
-            req.flash('error', 'Incorrect email');
-            next('redirect', path_to.reset_password);
-            return;
-        }
-
-        // Check captcha
-        require('../../lib/recaptcha.js').verifyCaptcha({
-            challenge:  req.body.recaptcha_challenge_field,
-            response:   req.body.recaptcha_response_field,
-            privatekey: config.recaptcha.privateKey,
-            remoteip:   '127.0.0.1'
-        }, function (success, error) {
-            if (!success) {
-                req.flash('error', 'Incorrect security code');
-                next('redirect', path_to.reset_password);
-                return;
-            }
-            User.find_by_email(req.body.email, function (err, user) {
+            // Everything ok, register user
+            User.register(email, function (err, message) {
                 if (err) {
-                    req.flash('error', 'User not found');
-                    next('redirect', path_to.reset_password);
+                    flash('error', message);
+                    redirect(path_to.new_user);
                 } else {
-                    user.requestPasswordChange();
-                    req.flash('info', 'Reset instructions has been sent to your email address');
-                    next('redirect', path_to.reset_password);
+                    flash('info', 'Please check you email to confirm account and finish registration');
+                    redirect('/');
                 }
             });
         });
-    },
-    'resetPasswordConfirm': function (req, next) {
-        User.resetPassword(req.query.code, function (err, reason) {
-            if (err) {
-                req.flash('error', 'Could not reset password: ' + reason);
-            } else {
-                req.flash('info', 'Your password has been reset, check your email');
-            }
-            next('redirect', path_to.new_session);
+    });
+});
+
+action('activate', function () {
+    User.activate(req.params.user_id, function (err) {
+        // authenticate user
+        req.session.user_id = this.id;
+        render({
+            title: 'User activation',
+            user: err ? null : this,
+            changePasswordRequired: !req.query.nopasschange
+        });
+    });
+});
+
+action('changePassword', function () {
+    if (req.user.changePassword(req.body.current_password, req.body.password)) {
+        flash('info', 'Password has been changed');
+        redirect(req.session.pendingUUID ? path_to.new_route : '/');
+    } else {
+        flash('error', 'Can not change password');
+        render('edit', {
+            user: req.user,
+            title: 'Edit account details'
         });
     }
-};
+});
+
+action('changePasswordRequired', function () {
+    render('change_password', {
+        title: 'Change password',
+        user: req.user
+    });
+});
+
+action('edit', function () {
+    if (req.user) {
+        render({
+            user: req.user,
+            title: 'Edit account details'
+        });
+    } else {
+        flash('Authorization required');
+        redirect(path_to.new_session);
+    }
+});
+
+action('changeEmail', function () {
+    if (req.user.email !== req.body.email) {
+        req.user.changeEmail(req.body.email);
+        send('Confirmation required');
+    } else {
+        flash('error', 'email the same');
+        render('edit', {
+            user: req.user,
+            title: 'Edit account details'
+        });
+    }
+});
+
+action('resetPasswordRequest', function () {
+    render('reset_password', {
+        title: 'Reset password request',
+        recaptchaKey: app.config.recaptcha.publicKey //'6Lcss8ESAAAAAFpTO65fFTp-4QyMw3v3qGPYFULp'
+    });
+});
+
+action('resetPassword', function () {
+    // Check required params
+    var email = req.body['email'];
+    if (!email || !email.match(/^[^@]*?@[^@]*$/)) {
+        flash('error', 'Incorrect email');
+        redirect(path_to.reset_password);
+        return;
+    }
+
+    // Check captcha
+    require(__dirname + '/lib/recaptcha').verifyCaptcha({
+        challenge:  req.body.recaptcha_challenge_field,
+        response:   req.body.recaptcha_response_field,
+        privatekey: app.config.recaptcha.privateKey,
+        remoteip:   '127.0.0.1'
+    }, function (success, error) {
+        if (!success && app.settings.env !== 'development') {
+            flash('error', 'Incorrect security code');
+            redirect(path_to.reset_password);
+            return;
+        }
+        User.find_by_email(req.body.email, function (err, user) {
+            if (err) {
+                flash('error', 'User not found');
+                redirect(path_to.reset_password);
+            } else {
+                user.requestPasswordChange();
+                flash('info', 'Reset instructions has been sent to your email address');
+                redirect(path_to.reset_password);
+            }
+        });
+    });
+});
+
+action('resetPasswordConfirm', function () {
+    User.resetPassword(req.query.code, function (err, reason) {
+        if (err) {
+            flash('error', 'Could not reset password: ' + reason);
+        } else {
+            flash('info', 'Your password has been reset, check your email');
+        }
+        redirect(path_to.new_session);
+    });
+});
 

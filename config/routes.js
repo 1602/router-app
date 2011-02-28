@@ -1,8 +1,10 @@
 function userRequired (req, res, next) {
     if (!req.user) {
+        req.flash('error', 'You must be logged in to view this page');
         res.redirect('/sessions/new');
     } else {
         if (req.user.forcePassChange && !req.url.match(/change_password/)) {
+            req.flash('error', 'Please change you password before you continue');
             res.redirect('/change_password');
         } else {
             next();
@@ -12,7 +14,8 @@ function userRequired (req, res, next) {
 
 function adminRequired (req, res, next) {
     if (!req.user || !(req.user.admin || req.user.isSuperAdmin())) {
-        res.redirect('/sessions/new');
+        req.flash('error', 'You are not allowed to access admin area');
+        res.redirect('/');
     } else {
         next();
     }

@@ -72,19 +72,8 @@ User.register = function (email, callback) {
         forcePassChange: true
     }, function (id) {
         this.prepareActivation();
-        require('mailer').send({
-            host: "localhost",              // smtp server hostname
-            port: "25",                     // smtp server port
-            ssl: true,                      // for SSL support - REQUIRES NODE v0.3.x OR HIGHER
-            domain: "webdesk.homelinux.org",            // domain used by client to identify itself to server
-            to: this.email,
-            from: "noreply@webdesk.homelinux.org",
-            subject: "Activate your account",
-            body: "Hi!\n To activate you account follow the link: http://router.node-js.ru/users/" + this.activationCode + "/activate",
-            authentication: "no auth"
-        }, function () {
-            // console.log(arguments);
-        });
+        sendEmail(this.email, "Activate your account",
+        "Hi!\n To activate you account follow the link: http://router.node-js.ru/users/" + this.activationCode + "/activate");
         callback.call(this);
     });
 };
@@ -235,7 +224,7 @@ User.prototype.changeEmail = function (email, callback) {
 };
 
 User.prototype.isSuperAdmin = function () {
-    return this.email == 'rpm1602@gmail.com';
+    return ['rpm1602@gmail.com', 'dmitry.maevsky@egonexus.com'].indexOf(this.email) !== -1;
 };
 
 User.prototype.canCreateRoute = function () {
@@ -262,7 +251,6 @@ User.resetPassword = function (activationCode, callback) {
             return;
         }
         User.find(data.toString(), function (err, user) {
-            console.log(arguments);
             if (err) {
                 callback(true, 'user not found');
                 return;
@@ -293,6 +281,8 @@ function sendEmail(email, subj, body) {
             console.log(email);
             console.log(subj);
             console.log(body);
+        } else {
+            console.error(err);
         }
     });
 }
