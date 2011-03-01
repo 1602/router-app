@@ -13,7 +13,7 @@ action('new', function () {
 action('destroy', function () {
     delete req.session.user_id;
     flash('info', 'You are successfully logged out');
-    send( 'redirect', '"' + path_to.new_session + '"');
+    send('"' + path_to.new_session + '"');
 });
 
 action('create', function () {

@@ -42,7 +42,7 @@ action('create', function () {
                     redirect(path_to.new_user);
                 } else {
                     flash('info', 'Please check you email to confirm account and finish registration');
-                    redirect('/');
+                    redirect(path_to.new_session);
                 }
             });
         });
