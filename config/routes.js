@@ -31,11 +31,11 @@ exports.routes = function (map) {
     map.resources('sessions', {only: ['new', 'create', 'destroy']});
     map.get('change_password', 'users#changePasswordRequired', userRequired);
 
-    map.get('/', 'routes#index', userRequired);
+    map.get('/', 'routes#index');
     map.get('/routes/claim', 'routes#claim');
     map.get('/routes/disclaim', 'routes#disclaim');
 
-    map.resources('routes', {middleware: userRequired, middlewareExcept: ['show']});
+    map.resources('routes');
 
     map.namespace('admin', function (admin) {
         admin.resources('routes', {middleware: adminRequired}, function (route) {

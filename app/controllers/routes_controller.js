@@ -1,3 +1,19 @@
+before(userRequired, {except: 'show'});
+
+function userRequired () {
+    if (!req.user) {
+        flash('error', 'You must be logged in to view this page');
+        redirect('/sessions/new');
+    } else {
+        if (req.user.forcePassChange && !req.url.match(/change_password/)) {
+            flash('error', 'Please change you password before you continue');
+            redirect('/change_password');
+        } else {
+            next();
+        }
+    }
+}
+
 action('new', function () {
     var route = new Route;
     route.user_id = req.user.id;
