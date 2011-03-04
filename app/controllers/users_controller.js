@@ -53,6 +53,9 @@ action('activate', function () {
     User.activate(req.params.user_id, function (err) {
         // authenticate user
         req.session.user_id = this.id;
+        if (!err) {
+            flash('info', 'Your email has been confirmed');
+        }
         render({
             title: 'User activation',
             user: err ? null : this,

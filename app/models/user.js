@@ -63,6 +63,11 @@ User.find_by_email = function (email, callback) {
     });
 };
 
+User.prototype.destroyFully = function (callback) {
+    User.connection.del('user_by_email:' + this.email.toLowerCase());
+    this.destroy(callback);
+};
+
 User.register = function (email, callback) {
     User.create({
         email: email,

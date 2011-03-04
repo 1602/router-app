@@ -20,6 +20,7 @@ action('create', function () {
     User.authenticate(req.body.email, req.body.password, function (success, user) {
         if (success) {
             req.session.user_id = user.id;
+            flash('info', 'You has been logged in');
             redirect(req.session.pendingUUID ? path_to.new_route : '/');
         } else {
             flash('error', 'Can not authenticate user with given credentials: ' + user);
